@@ -23,7 +23,8 @@ export default function Orders(){
             }
             return res.json();
 
-        }
+        },
+        staleTime: 1000 * 60 * 60 * 24,
     });
     if(isLoading){
         return <Loading />

@@ -26,7 +26,9 @@ export default function Home(){
                 throw new Error("Failed to fetch genres");
             }
             return res.json();
-        }
+        },
+        staleTime: 1000 * 60 * 60 * 24,
+        
     });
 
     const {data: listedBooks, isLoading, isError} = useQuery<Book[]>({
@@ -40,6 +42,8 @@ export default function Home(){
             const data = await res.json();
             return Array.isArray(data) ? data : (data.listedBooks || []);
         },
+        staleTime: 1000 * 60 * 60 * 24,
+        
 
     });
 

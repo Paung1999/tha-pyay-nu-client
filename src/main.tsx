@@ -11,7 +11,7 @@ import BookDetails from "./pages/BookDetails.tsx";
 import AppProvider from "./providers/AppProvider.tsx";
 import CartProvider from "./providers/CartProvider.tsx";
 import SearchBar from "./pages/SearchBar.tsx";
-import CheckOut from "./pages/CheckOut.tsx";
+import CheckOut from "./pages/Checkout.tsx";
 import OrderSuccess from "./pages/OrderSuccess.tsx";
 import ProtectedAuthRoute from "./components/ProtectedAuthRoute.tsx";
 
@@ -19,7 +19,7 @@ import ProtectedAuthRoute from "./components/ProtectedAuthRoute.tsx";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute.tsx";
 import OrderLists from "./pages/admin/OrderLists.tsx";
 import AdminLayout from "./layouts/AdminLayout.tsx";
-import Dashboard from "./pages/admin/dashboard.tsx";
+import Dashboard from "./pages/admin/Dashboard.tsx";
 import AddBook from "./pages/admin/AddBook.tsx";
 import Inventory from "./pages/admin/Inventory.tsx";
 import Listings from "./pages/admin/Listings.tsx";
