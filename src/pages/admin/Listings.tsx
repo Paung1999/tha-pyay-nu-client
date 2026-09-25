@@ -1,9 +1,10 @@
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery, } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import Loading from "../../components/Loading";
 import type { Book } from "../../global/types";
-import { Dot, Trash2, Search, X } from "lucide-react";
+import { Dot, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import DelistBookButton from "../../components/DelistBookButton.tsx";
 
 const api = "http://localhost:8800/api/v1/admin";
 
@@ -18,7 +19,7 @@ function useDebounce(value: string, delay: number) {
 }
 
 export default function Listings() {
-  const queryClient = useQueryClient();
+
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput, 500);
@@ -49,27 +50,6 @@ export default function Listings() {
     },
   });
 
-  const removeMutation = useMutation({
-    mutationFn: async (bookId: number) => {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${api}/sell-books/${bookId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        throw new Error(`Failed to delete ${bookId}`);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["books"] });
-      alert(`Removed from listing successfully`);
-    },
-    onError: (error: any) => {
-      alert(error.message);
-    },
-  });
 
   if (isLoading) {
     return <Loading />;
@@ -172,12 +152,7 @@ export default function Listings() {
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={() => removeMutation.mutate(book.id)}
-                      className="text-red-700 hover:text-red-800 transition-colors cursor-pointer mr-3"
-                    >
-                      <Trash2 size={20} />
-                    </button>
+                    <DelistBookButton bookId={book.id} />
                   </div>
                 </td>
               </tr>

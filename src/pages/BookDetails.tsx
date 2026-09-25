@@ -1,14 +1,16 @@
 import { useParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import Loading from "../components/Loading";
-import { useCart } from "../providers/CartProvider";
 import { ShoppingCart, Tag, Globe, Hash, BookOpen } from "lucide-react";
+import {useAppDispatch} from "../app/hooks";
+import {addToCart, openCart} from "../libs/features/cartSlice.ts";
+import "./../globals.css";
 
 const api = "http://localhost:8800/api/v1/books"
 
 export default function BookDetails(){
     const {id} = useParams();
-    const { dispatch, setIsCartOpen } = useCart();
+    const dispatch = useAppDispatch();
     const {data:listedBook, isLoading, isError } = useQuery({
         queryKey: ["listedBook", id],
         queryFn: async()=> {
@@ -31,24 +33,13 @@ export default function BookDetails(){
         )
     }
 
-    const handleAddToCart = () => {
-        dispatch({ 
-            type: 'ADD_TO_CART',
-            payload: {
-                sellBookId: listedBook.book.id,
-                price: listedBook.price,
-                currency: listedBook.currency,
-                title: listedBook.book.title,
-                author: listedBook.book.author,
-                coverImage: listedBook.book.coverImage,
-                quantity: 1,
-            }
-        });
-        setIsCartOpen(true);
+    const handleAddToCart = ( ) => {
+        dispatch(addToCart(listedBook));
+        dispatch(openCart());
     }
 
     return(
-        <div className="min-h-screen bg-slate-900 text-slate-200 font-sans py-12 px-4 sm:px-6 lg:px-8">
+        <div className="w-full min-h-screen  text-slate-200 font-sans py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
                 <div className="flex flex-col md:flex-row gap-10 lg:gap-16">
                     <div className="w-full md:w-1/3 flex-shrink-0">
@@ -83,7 +74,7 @@ export default function BookDetails(){
                                 </div>
                                 
                                 <button
-                                    onClick={handleAddToCart}
+                                    onClick={()=>handleAddToCart()}
                                     className="flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-800 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-indigo-500/25 active:scale-95 w-full sm:w-auto cursor-pointer"
                                 >
                                     <ShoppingCart size={20} />

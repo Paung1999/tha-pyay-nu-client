@@ -7,10 +7,13 @@ import { ArrowLeft, Save } from "lucide-react";
 
 const api = "http://localhost:8800/api/v1/admin";
 
-type BookType = {
-    id: number,
-    title: string,
-    author: string
+interface CreateListingPayload {
+    bookId: string;
+    price: number;
+    currency: string;
+    stockQuantity: number;
+    condition: string;
+    isActive: boolean;
 }
 
 export default function CreateListing(){
@@ -33,7 +36,7 @@ export default function CreateListing(){
     }
 
     const createListingMutation = useMutation({
-        mutationFn: async (listingData: any)=> {
+        mutationFn: async (listingData: CreateListingPayload)=> {
             const token = localStorage.getItem("token");
             const res = await fetch(`${api}/sell-books`, {
                 method: "POST",
@@ -47,10 +50,10 @@ export default function CreateListing(){
 
             if(!res.ok){
                 throw new Error("Failed to create listing");
-            
+
             }
             return res.json();
-        
+
         },
         onSuccess: ()=> {
             queryClient.invalidateQueries({queryKey: ["books"]});
@@ -72,10 +75,10 @@ export default function CreateListing(){
             stockQuantity: Number(data.stockQuantity),
             condition: data.condition,
             isActive: data.isActive === "true"
-        
+
         }
         createListingMutation.mutate(listingData);
-    
+
     }
 
     return(
@@ -93,7 +96,7 @@ export default function CreateListing(){
 
             </div>
             <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 flex items-center gap-6 shadow-md">
-                <img src={selectedBook.coverImage} alt={selectedBook.title}
+                <img src={selectedBook?.coverImage} alt={selectedBook.title}
                     className="w-12 h-16 object-cover rounded shadow-sm"
                 />
                 <div >
@@ -104,7 +107,7 @@ export default function CreateListing(){
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="bg-slate-800 rounded-2xl border border-slate-700 shadow-xl overflow-hidden p-8">
-                <div className="p-8 space-y-8"> 
+                <div className="p-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-300" >Price</label>

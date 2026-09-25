@@ -1,16 +1,16 @@
-import { ShoppingCart, Menu, Home } from "lucide-react"
+import { ShoppingCart, Menu} from "lucide-react"
 import { useApp } from "../providers/AppProvider"
 import { useNavigate } from "react-router-dom";
-import { useCart } from "../providers/CartProvider";
 import SearchBar from "../pages/SearchBar";
+import {useAppSelector} from "../app/hooks.ts";
+import {selectCartItemCount} from "../libs/features/cartSlice.ts";
 
 
 export default function Header(){
     const {openDrawer, setOpenDrawer, auth} = useApp()!;
     const navigate = useNavigate();
-    const { items } = useCart();
 
-    const totalItems = items.reduce((total, item)=> total + item.quantity,0);
+    const totalItems = useAppSelector(selectCartItemCount)
 
 
     return(

@@ -1,41 +1,33 @@
-import { useCart } from "../providers/CartProvider";
+
 import { CircleMinus, CirclePlus, Trash2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import {useAppDispatch, useAppSelector} from "../app/hooks.ts";
+import {
+  decreaseQuantity, increaseQuantity,
+  removeFromCart,
+  selectCartItem,
+  selectCartItemCount, selectCartTotal
+} from "../libs/features/cartSlice.ts";
 
 export default function Cart() {
-  const { items, dispatch } = useCart();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const totalCartItems = useAppSelector(selectCartItemCount);
+  const cartItems = useAppSelector(selectCartItem);
+  const totalCost = useAppSelector(selectCartTotal);
 
-  const totalCost = useMemo(() => {
-    return items.reduce((total, item) => total + item.price * item.quantity, 0);
-  }, [items]);
-
-  const handleRemoveFromCart = (sellBookId: number) => {
-    dispatch({
-      type: "REMOVE_FROM_CART",
-      payload: {
-        sellBookId,
-      },
-    });
+  const handleRemoveFromCart = (sellBookId:number) => {
+    dispatch(removeFromCart(sellBookId));
   };
 
-  const handleUpdateQuantity = (
-    sellBookId: number,
-    currentQuantity: number,
-    change: number,
-  ) => {
-    const newQuantity = currentQuantity + change;
-    dispatch({
-      type: "UPDATE_QUANTITY",
-      payload: {
-        sellBookId,
-        quantity: newQuantity,
-      },
-    });
-  };
+  const handleDecreaseQuantity = (sellBookId:number) => {
+    dispatch(decreaseQuantity(sellBookId));
+  }
+  const handleIncreaseQuantity = (sellBookId:number) => {
+    dispatch(increaseQuantity(sellBookId));
+  }
 
-  if (items.length === 0) {
+  if (totalCartItems === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <div className="bg-slate-800 p-8 rounded-2xl border border-slate-700 text-center max-w-md w-full shadow-xl">
@@ -62,7 +54,7 @@ export default function Cart() {
 
       <div className="flex flex-col gap-8 lg:flex-row">
         <div className="flex-1 space-y-4">
-          {items.map((item) => (
+          {cartItems.map((item) => (
             <div
               key={item.sellBookId}
               className="flex flex-col sm:flex-row items-center bg-slate-800 p-4 rounded-xl shadow-md gap-4 border border-slate-700"
@@ -89,8 +81,8 @@ export default function Cart() {
               <div className="flex items-center gap-4 mt-4 sm:mt-0">
                 <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-1 border border-slate-700">
                   <button
-                    onClick={() =>
-                      handleUpdateQuantity(item.sellBookId, item.quantity, -1)
+                    onClick={()=>
+                      handleDecreaseQuantity(item.sellBookId)
                     }
                     className="p-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >
@@ -102,8 +94,8 @@ export default function Cart() {
                   </span>
 
                   <button
-                    onClick={() =>
-                      handleUpdateQuantity(item.sellBookId, item.quantity, 1)
+                    onClick={()=>
+                      handleIncreaseQuantity(item.sellBookId)
                     }
                     className="p-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
                   >

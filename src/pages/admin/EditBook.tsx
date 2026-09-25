@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation,useQueryClient, useQuery } from "@tanstack/react-query";
 import { useState, useEffect, } from "react";
+import Loading from "../../components/Loading.tsx";
 
 
 type BookToEdit = {
@@ -54,6 +55,16 @@ export default function EditBook(){
 
         }
     });
+    if(isLoading){
+        return <Loading />;
+    }
+    if(isError){
+        return (
+            <div>
+                something went wrong.
+            </div>
+        )
+    }
 
     
 
@@ -76,6 +87,9 @@ export default function EditBook(){
         },
         enabled: !!id
     });
+    if(isBookLoading){
+        return <Loading />;
+    }
 
     useEffect(() => {
         if (bookToEdit) {

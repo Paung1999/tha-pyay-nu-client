@@ -1,7 +1,9 @@
-import { useCart } from "../providers/CartProvider";
+
 import { useNavigate } from "react-router-dom";
 import { useForm} from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
+import {useAppDispatch, useAppSelector} from "../app/hooks.ts";
+import {selectCartItem, selectCartTotal} from "../libs/features/cartSlice.ts";
 
 const api = 'http://localhost:8800/api/v1/orders'
 
@@ -11,7 +13,9 @@ type CheckoutInputs = {
 };
 
 export default function Checkout(){
-    const {items, dispatch} = useCart();
+    const dispatch = useAppDispatch();
+    const cartItems = useAppSelector(selectCartItem);
+    const totalCost = useAppSelector(selectCartTotal)
     const navigate = useNavigate();
     const {
         register,
@@ -19,10 +23,10 @@ export default function Checkout(){
         formState: {errors}
     } = useForm<CheckoutInputs>();
 
-    const totalCost = items.reduce((total,item)=> total + item.price * item.quantity,0);
+
 
     const onSubmit: SubmitHandler<CheckoutInputs> = async(data) => {
-        if(items.length === 0){
+        if(cartItems?.length === 0){
             navigate("/");
             return;
         }
@@ -36,7 +40,7 @@ export default function Checkout(){
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    items: items,
+                    items: cartItems,
                     shippingAddress: `${data.address} (Phone: ${data.phone})`,
                 })
             });
@@ -100,7 +104,7 @@ export default function Checkout(){
                     <h2 className="text-2xl font-bold text-white mb-6 pb-4 border-b border-slate-700">Order Summary</h2>
                     
                     <div className="space-y-5 mb-8 max-h-[40vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent pr-2">
-                        {items.map(item => (
+                        {cartItems?.map(item => (
                             <div key={item.sellBookId} className="flex justify-between items-start gap-4">
                                 <div className="flex-1">
                                     <h4 className="text-slate-200 font-semibold text-sm line-clamp-2">{item.title}</h4>

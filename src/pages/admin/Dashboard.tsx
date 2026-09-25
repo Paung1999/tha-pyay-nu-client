@@ -1,13 +1,13 @@
-import { Link } from "react-router-dom";
+
 import { useQuery } from "@tanstack/react-query";
 import type { Order } from "../../global/types";
 import Loading from "../../components/Loading";
 
 import { Banknote, BookOpenCheck, User2 } from "lucide-react";
 
-type Stats = {
-    totalRevenue: number;
-}
+// interface TotalRevenuesProps {
+//     total: string;
+// }
 
 const api = "http://localhost:8800/api/v1/admin";
 
@@ -51,7 +51,7 @@ export default function Dashboard(){
         return total + booksInThisOrder;
     }, 0) || 0;
 
-    const totalCustomers = orders?.reduce((uniqueIds, order)=>{
+    const totalCustomers = orders?.reduce<number[]>((uniqueIds, order)=>{
         if(!uniqueIds.includes(order.userId)){
             uniqueIds.push(order.userId);
         
@@ -80,7 +80,7 @@ export default function Dashboard(){
                                 Total revenue
                             </span>
                             <span className="text-3xl font-black text-white group-hover:scale-105 transition-transform origin-left">
-                                {totalRevenue.toLocaleString() || 0}
+                                {totalRevenue?.toLocaleString() || 0}
                             </span>
                             
                         </div>

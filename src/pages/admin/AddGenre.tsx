@@ -66,6 +66,9 @@ export default function AddGenre(){
                         <label className="text-sm font-medium text-slate-300" >Genre Name</label>
                         <input  type="text" {...register("name",{required: "Genre name is required"} )} className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder:text-slate-600"
                             placeholder="Enter genre name" />
+                        {errors.name && (
+                            <p className="text-sm font-medium text-slate-300">{errors.name.message as string}</p>
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-end pt-4 border-t border-slate-700">

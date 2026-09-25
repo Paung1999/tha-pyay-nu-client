@@ -4,6 +4,13 @@ import { useState } from "react";
 
 const api = "http://localhost:8800/api/v1/user";
 
+interface RegisisterFormdata{
+    name: string,
+    email: string,
+    password: string,
+    confirmPassword: string,
+}
+
 export default function Register(){
     const navigate =  useNavigate();
     const [registerError, setRegisterError] = useState(false);
@@ -11,7 +18,7 @@ export default function Register(){
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm();
+    } = useForm<RegisisterFormdata>();
 
     const registerUser = async(data: any)=> {
         try{
@@ -36,7 +43,7 @@ export default function Register(){
     }
 
     return(
-        <div className="flex min-h-screen items-center justify-center bg-slate-900  p-4">
+        <div className="flex  items-center justify-center  p-4">
         <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-700 ">
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-100">Welcome Back</h2>
@@ -52,7 +59,7 @@ export default function Register(){
                         className="w-full px-4 py-3 rounded-lg text-white bg-slate-900/50 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
                 </div>
-                {errors.name && <p className="text-red-500">{errors.email.message}</p>}
+                {errors.name && <p className="text-red-500">{errors.name.message}</p>}
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-white ml-1">Enter your email</label>
                     <input type="email" {...register("email",{ required: "Email is required"} )} 

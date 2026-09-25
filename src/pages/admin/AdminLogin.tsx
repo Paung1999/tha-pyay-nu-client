@@ -26,7 +26,7 @@ export default function AdminLogin(){
                 setLoginError(true);
                 return false;
             }
-            const {user: loginAdmin, token} = await res.json();
+            const { token} = await res.json();
             localStorage.setItem("token", token);
             const verifyRes = await fetch(`http://localhost:8800/api/v1/admin/verify`, {
                 method: "GET",
@@ -36,8 +36,8 @@ export default function AdminLogin(){
 
             });
             if(verifyRes.ok){
-                const user = await verifyRes.json();
-                setAdminAuth(user);
+                const loginAdmin = await verifyRes.json();
+                setAdminAuth(loginAdmin);
                 navigate("/admin");
                 return true;
                 

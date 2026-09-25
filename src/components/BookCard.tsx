@@ -1,30 +1,24 @@
 import type { Book } from "../global/types";
-import { useCart } from "../providers/CartProvider";
 import { Link } from "react-router-dom";
+import { useAppDispatch } from './../app/hooks.ts'
+import {addToCart, openCart} from "./../libs/features/cartSlice.ts";
 
+interface BookCardProps {
+    listedBook: Book;
 
-export default function BookCard({ listedBook }: { listedBook: Book }) {
-  const { dispatch, setIsCartOpen } = useCart();
+}
+
+export default function BookCard({ listedBook }: BookCardProps) {
+  const dispatch = useAppDispatch();
 
 
   const handleAddToCart = () => {
-    dispatch({
-      type: "ADD_TO_CART",
-      payload: {
-        sellBookId: listedBook.book.id,
-        price: listedBook.price,
-        currency: listedBook.currency,
-        title: listedBook.book.title,
-        author: listedBook.book.author,
-        coverImage: listedBook.book.coverImage,
-        quantity: 1,
-      },
-    });
-    setIsCartOpen(true);
+    dispatch(addToCart(listedBook));
+    dispatch(openCart());
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden bg-slate-800 rounded-xl border border-slate-700 shadow-lg hover:shadow-xl hover:border-slate-600 transition-all duration-300 hover:-translate-y-1.5 group">
+    <div className="w-full h-full flex flex-col overflow-hidden bg-slate-800 rounded-lg border border-slate-700 shadow-lg hover:shadow-xl hover:border-slate-600 transition-all duration-300 hover:-translate-y-1.5 group">
       
       <Link to={`/books/${listedBook.book.id}`} className="relative aspect-[2/3] w-full overflow-hidden bg-slate-700">
           <img

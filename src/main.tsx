@@ -9,7 +9,6 @@ import Cart from "./pages/Cart.tsx";
 import Orders from "./pages/Orders.tsx";
 import BookDetails from "./pages/BookDetails.tsx";
 import AppProvider from "./providers/AppProvider.tsx";
-import CartProvider from "./providers/CartProvider.tsx";
 import SearchBar from "./pages/SearchBar.tsx";
 import CheckOut from "./pages/Checkout.tsx";
 import OrderSuccess from "./pages/OrderSuccess.tsx";
@@ -32,6 +31,7 @@ import AdminLogin from "./pages/admin/AdminLogin.tsx";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {StoreProvider} from "./providers/StoreProvider.tsx";
 
 
 const queryClient = new QueryClient();
@@ -138,14 +138,16 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <CartProvider>
+  <StoreProvider>
     <QueryClientProvider client={queryClient}>
-    <AppProvider>
-    <StrictMode>
-      <RouterProvider router={router} />
-    </StrictMode>
-    ,
-  </AppProvider>,
-  </QueryClientProvider>
-  </CartProvider>
+      <AppProvider>
+        <StrictMode>
+          <RouterProvider router={router} />
+        </StrictMode>
+        ,
+      </AppProvider>,
+    </QueryClientProvider>
+  </StoreProvider>
+
+
 );

@@ -28,13 +28,13 @@ export type Genre = {
 }
 
 export type CartItem  = {
-  sellBookId: number; 
+  sellBookId: number;
   title: string;
   author: string;
   price: number;
   currency: string;
   coverImage: string;
-  quantity: number; 
+  quantity: number;
 }
 
 export type Order = {

@@ -1,8 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery,} from "@tanstack/react-query";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Search, X } from "lucide-react";
+import {  Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import DeleteBookButton from "../../components/DeleteBookButton.tsx";
 
 const api = "http://localhost:8800/api/v1/admin/books";
 
@@ -24,7 +25,6 @@ function useDebounce(value: string, delay: number) {
 }
 
 export default function Inventory() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput, 500);
@@ -56,27 +56,6 @@ export default function Inventory() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (bookId: number) => {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${api}/${bookId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        throw new Error("Fail to delete Book");
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["books"] });
-      alert("Book deleted successfully");
-    },
-    onError: (error: any) => {
-      alert(error.message);
-    },
-  });
 
   if (isLoading) {
     return <Loading />;
@@ -178,13 +157,7 @@ export default function Inventory() {
                     >
                       Edit
                     </button>
-
-                    <button
-                      onClick={() => deleteMutation.mutate(book.id)}
-                      className="text-red-700 hover:text-red-800 transition-colors cursor-pointer mr-3"
-                    >
-                      <Trash2 size={20} />
-                    </button>
+                    <DeleteBookButton bookId={book.id} />
                   </div>
                 </td>
               </tr>

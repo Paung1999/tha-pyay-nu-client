@@ -9,11 +9,6 @@ import Loading from "../../components/Loading";
 
 const api = "http://localhost:8800/api/v1/admin";
 
-type BookType = {
-    id: number,
-    title: string,
-    author: string
-}
 
 export default function EditListedBook(){
     const queryClient = useQueryClient();

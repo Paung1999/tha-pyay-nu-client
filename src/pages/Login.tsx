@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useApp } from "../providers/AppProvider"
 
+interface LoginFormData{
+    email: string,
+    password: string,
+}
+
 export default function Login(){
     const [loginError, setLoginError] = useState(false);
     const {setAuth} = useApp()!;
@@ -12,7 +17,7 @@ export default function Login(){
         handleSubmit,
         formState: { errors },
 
-    } = useForm();
+    } = useForm<LoginFormData>();
 
     const login = async(data:any) => {
         try{
@@ -30,7 +35,7 @@ export default function Login(){
                 return false
             }
 
-            const {user: loginUser , token} = await res.json();
+            const { token} = await res.json();
             localStorage.setItem("token", token);
             const verifyRes = await fetch(`http://localhost:8800/api/v1/user/verify`,{
                 method: "GET",
@@ -52,7 +57,7 @@ export default function Login(){
     }
 
     return(
-    <div className="flex min-h-screen items-center justify-center bg-slate-900  p-4">
+    <div className="flex items-center justify-center p-4 m-20">
         <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-700 ">
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-100">Welcome Back</h2>

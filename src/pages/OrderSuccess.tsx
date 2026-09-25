@@ -38,7 +38,7 @@ export default function OrderSuccess(){
             
            
             <div className="flex flex-col items-center text-center mb-12">
-                <OrderTracker status={order?.status} />
+                <OrderTracker status={order!.status} />
                 <div className="w-16 h-16 bg-indigo-600/20 rounded-full flex items-center justify-center mb-6 mt-6">
                     <CheckCircle2 className="w-8 h-8 text-indigo-500"  />
                 </div>

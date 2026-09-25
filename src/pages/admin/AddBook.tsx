@@ -87,6 +87,13 @@ export default function AddBook(){
         addBookMutation.mutate(formData);
 
     }
+    if(isLoading) {
+        return(
+            <div>
+                Loading....
+            </div>
+        )
+    }
     return(
         <div className="max-w-4xl mx-auto space-y-6 relative pb-12">
             <div className="flex items-center gap-4">
