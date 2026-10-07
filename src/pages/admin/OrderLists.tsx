@@ -1,33 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+
 
 import StatusDropdown from "../../components/StatusDropdown";
-import type { Order } from "../../global/types";
 import Loading from "../../components/Loading";
 import { ClipboardList, Clock, Truck } from "lucide-react";
+import {useGetAdminOrdersQuery} from "../../libs/features/orders/orderApiSlice.ts";
 
-const api = "http://localhost:8800/api/v1/admin/orders";
 
 export default function OrderLists() {
   const {
     data: orders,
     isLoading,
     isError,
-  } = useQuery<Order[]>({
-    queryKey: ["orders"],
-    queryFn: async () => {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${api}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        throw new Error("Something went wrong");
-      }
-      return res.json();
-    },
-  });
+  } = useGetAdminOrdersQuery(undefined)
 
   if (isLoading) {
     return <Loading />;

@@ -7,6 +7,7 @@ const heroImages = [
     {label:'image 1', imgPath:'/images/image1.png'},
     {label:'image 2', imgPath:'/images/image2.png'},
     {label:'image 3', imgPath:'/images/image3.png'},
+    {label:'image 4', imgPath:'/images/image4.png'},
 ]
 
 export default function HeroSection() {

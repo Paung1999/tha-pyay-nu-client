@@ -1,31 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+
 import Loading from "../components/Loading";
-import type { Order } from "../global/types";
 import { Link } from "react-router-dom";
 import { Package, ArrowRight, ShoppingBag } from "lucide-react";
+import { useGetClientOrdersQuery} from "../libs/features/orders/orderApiSlice.ts";
 
-const api = "http://localhost:8800/api/v1/orders";
 
 export default function Orders(){
-    const { data: orders , isLoading, isError} = useQuery<Order[]>({
-        queryKey: ["orders"],
-        queryFn: async()=> {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${api}`, {
-                method: "GET",
-                headers:{
-                    "Authorization": `Bearer ${token}`
-                
-                }
-            });
-            if(!res.ok){
-                throw new Error("Something went wrong");
-            }
-            return res.json();
-
-        },
-        staleTime: 1000 * 60 * 60 * 24,
-    });
+    const { data: orders , isLoading, isError} = useGetClientOrdersQuery(undefined);
     if(isLoading){
         return <Loading />
     }
@@ -36,7 +17,7 @@ export default function Orders(){
     return(
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8  py-12">
             <div className="flex flex-col justify-start items-center gap-3 text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-black text-slate-700 mb-4 tracking-tight">My Orders</h1>
+                <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">My Orders</h1>
                 <p className="text-lg text-slate-400 max-w-xl">Track your journey and view your past orders.</p>
             </div>
             

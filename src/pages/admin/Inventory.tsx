@@ -1,19 +1,15 @@
-import { useQuery,} from "@tanstack/react-query";
+
 import Loading from "../../components/Loading";
-import { useNavigate } from "react-router-dom";
 import {  Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import DeleteBookButton from "../../components/DeleteBookButton.tsx";
+import {useGetAdminBooksQuery} from "../../libs/features/book/bookApiSlice.ts";
+import useDialog from "../../hooks/useDialog.ts";
+import BookDialog from "../../components/BookDialog.tsx";
+import type { CatalogBook} from "../../global/types.ts";
+import ListingDialog from "../../components/ListingDialog.tsx";
 
-const api = "http://localhost:8800/api/v1/admin/books";
 
-type Book = {
-  id: number;
-  title: string;
-  author: string;
-  coverImage: string;
-  description: string;
-};
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -25,36 +21,17 @@ function useDebounce(value: string, delay: number) {
 }
 
 export default function Inventory() {
-  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput, 500);
+  const {open:bookDlgOpen, setOpen:bookDlgSetOpen, handleClose } = useDialog()
+  const {open:listingDlgOpen, setOpen:listingDlgSetOpen, handleClose:listingDlgHandleClose} = useDialog();
+  const selectedBookRef = useRef<CatalogBook| undefined >(undefined);
 
   const {
     data: books,
     isLoading,
     isError,
-  } = useQuery<Book[]>({
-    queryKey: ["books", debouncedSearch],
-    queryFn: async () => {
-      const token = localStorage.getItem("token");
-      const endpoint = debouncedSearch
-        ? `${api}/search?q=${debouncedSearch}`
-        : `${api}`;
-      const res = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        if (res.status === 401)
-          throw new Error("Unauthorized: Please log in again");
-        throw new Error("Failed to fetch books");
-      }
-      return res.json();
-    },
-  });
+  } = useGetAdminBooksQuery(debouncedSearch);
 
 
   if (isLoading) {
@@ -68,9 +45,25 @@ export default function Inventory() {
     );
   }
   if (books?.length === 0) {
-    <div className="p-12 text-center text-slate-400">
-      No books found matching "{searchInput}".
-    </div>;
+    return (
+        <div className="p-12 text-center text-slate-400">
+          No books found matching "{searchInput}".
+        </div>
+    )
+  }
+
+  const editBookHandler = (book:CatalogBook) => {
+    selectedBookRef.current = book;
+    bookDlgSetOpen(true)
+  }
+  const newBookHandler = () => {
+    selectedBookRef.current = undefined;
+    bookDlgSetOpen(true)
+  }
+
+  const newListingHandler = (book:CatalogBook) => {
+    selectedBookRef.current = book;
+    listingDlgSetOpen(true);
   }
 
   return (
@@ -101,7 +94,7 @@ export default function Inventory() {
             )}
           </div>
           <button
-            onClick={() => navigate("/admin/inventory/add-book")}
+            onClick={ newBookHandler}
             className="bg-indigo-800 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors cursor-pointer"
           >
             Add new Book
@@ -137,11 +130,7 @@ export default function Inventory() {
                 <td className="p-4 text-slate-400">{book.author}</td>
                 <td className="p-4 text-slate-400">
                   <button
-                    onClick={() =>
-                      navigate("/admin/listings/create-listing", {
-                        state: { selectedBook: book },
-                      })
-                    }
+                    onClick={()=> newListingHandler(book)}
                     className="bg-indigo-800 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-md hover:shadow-indigo-500/20 cursor-pointer"
                   >
                     List
@@ -150,14 +139,13 @@ export default function Inventory() {
                 <td className="p-4 text-right">
                   <div className="flex gap-3 justify-end">
                     <button
-                      onClick={() =>
-                        navigate(`/admin/inventory/edit-book/${book.id}`)
+                      onClick={() => editBookHandler(book)
                       }
                       className="text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer mr-3"
                     >
                       Edit
                     </button>
-                    <DeleteBookButton bookId={book.id} />
+                    <DeleteBookButton book={book} />
                   </div>
                 </td>
               </tr>
@@ -172,6 +160,8 @@ export default function Inventory() {
           </tbody>
         </table>
       </div>
+      <BookDialog open={bookDlgOpen} handleClose={handleClose} bookToEdit={selectedBookRef.current} />
+      <ListingDialog open={listingDlgOpen} handleClose={listingDlgHandleClose} bookId={selectedBookRef?.current?.id} />
     </div>
   );
 }

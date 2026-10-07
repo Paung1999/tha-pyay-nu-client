@@ -1,6 +1,5 @@
 import type { Action, ThunkAction  } from "@reduxjs/toolkit";
 import {combineSlices, configureStore} from "@reduxjs/toolkit";
-import {cartSlice} from "./../libs/features/cartSlice.ts";
 import {
     persistReducer,
     FLUSH,
@@ -13,7 +12,21 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-const rootReducer = combineSlices(cartSlice);
+import {cartSlice} from "../libs/features/cart/cartSlice.ts";
+import {apiSlice} from "../libs/features/api/apiSlice.ts";
+import {authSlice} from "../libs/features/auth/authSlice.ts";
+
+const authPersistConfig = {
+    key: 'auth',
+    storage,
+    blacklist: ['isInitialized'],
+}
+
+const rootReducer = combineSlices(
+    cartSlice,
+    apiSlice,
+    {auth:persistReducer(authPersistConfig, authSlice.reducer)});
+
 export type RootState = ReturnType<typeof rootReducer>;
 
 const persistConfig = {
@@ -32,7 +45,7 @@ export const makeStore = ()=>{
                 serializableCheck: {
                     ignoredActions: [FLUSH, REHYDRATE, PERSIST, PURGE, REGISTER, PAUSE],
                 },
-            }),
+            }).concat(apiSlice.middleware),
     });
 };
 

@@ -7,7 +7,7 @@ import {
   removeFromCart,
   selectCartItem,
   selectCartItemCount, selectCartTotal
-} from "../libs/features/cartSlice.ts";
+} from "../libs/features/cart/cartSlice.ts";
 
 export default function Cart() {
   const navigate = useNavigate();

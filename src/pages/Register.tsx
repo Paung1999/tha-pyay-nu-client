@@ -1,8 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from  "react-router-dom";
-import { useState } from "react";
+import {useRegisterMutation} from "../libs/features/auth/authApiSlice.ts";
 
-const api = "http://localhost:8800/api/v1/user";
 
 interface RegisisterFormdata{
     name: string,
@@ -13,47 +12,34 @@ interface RegisisterFormdata{
 
 export default function Register(){
     const navigate =  useNavigate();
-    const [registerError, setRegisterError] = useState(false);
+    const [registerUser ] = useRegisterMutation();
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<RegisisterFormdata>();
 
-    const registerUser = async(data: any)=> {
+    const registerNewUser = async(data: RegisisterFormdata)=> {
         try{
-            const res = await fetch(`${api}/register`, {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-            if(!res.ok){
-                setRegisterError(true);
-                return false;
-            }
-            res.json();
-            navigate("/sign-in");
-            return true;
+            await registerUser(data).unwrap();
+            navigate('/sign-in')
 
-        }catch(err: any){
-            setRegisterError(true);
+        }catch(err){
+            console.log(err);
         }
     }
 
     return(
-        <div className="flex  items-center justify-center  p-4">
+        <div className="flex  min-h-[calc(100vh-4rem)] items-center justify-center  px-4 py-8 sm:py-16">
         <div className="w-full max-w-md bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-700 ">
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-100">Welcome Back</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-100">Welcome Back</h2>
                 <p className="text-gray-400 mt-2">Please enter your details</p>
             </div>
-            {registerError && <div className="text-red-500 text-center mt-2">Login failed</div>}
 
-            <form onSubmit={handleSubmit(registerUser)} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit(registerNewUser)} className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-white ml-1">Enter your name</label>
+                    <label className="text-sm font-semibold text-slate-200 ml-1">Enter your name</label>
                     <input type="text" {...register("name",{ required: "Email is required"} )} 
                         placeholder="Your Name"
                         className="w-full px-4 py-3 rounded-lg text-white bg-slate-900/50 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -61,7 +47,7 @@ export default function Register(){
                 </div>
                 {errors.name && <p className="text-red-500">{errors.name.message}</p>}
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-white ml-1">Enter your email</label>
+                    <label className="text-sm font-semibold text-slate-200 ml-1">Enter your email</label>
                     <input type="email" {...register("email",{ required: "Email is required"} )} 
                         placeholder="youremail@gmail.com"
                         className="w-full px-4 py-3 rounded-lg text-white bg-slate-900/50 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -69,7 +55,7 @@ export default function Register(){
                 </div>
                 {errors.email && <p className="text-red-500">{errors.email.message}</p>}
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-white ml-1">Enter your password</label>
+                    <label className="text-sm font-semibold text-slate-200 ml-1">Enter your password</label>
                     <input type="password" {...register("password", {required: "Password is required"})}
                         placeholder="password"
                         className="w-full px-4 py-3 rounded-lg text-white bg-slate-900/50 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -77,7 +63,7 @@ export default function Register(){
                 </div>
                 {errors.password && <p className="text-red-500">{errors.password.message}</p>}
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-white ml-1">Confirm your password</label>
+                    <label className="text-sm font-semibold text-slate-200 ml-1">Confirm your password</label>
                     <input type="password" {...register("confirmPassword", {required: "Confirm password is required"})}
                         placeholder="password"
                         className="w-full px-4 py-3 rounded-lg text-white bg-slate-900/50 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"

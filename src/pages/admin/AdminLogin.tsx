@@ -1,50 +1,33 @@
 import { useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { useApp } from "../../providers/AppProvider"
 import { ShieldCheck } from "lucide-react"
+import {useAdminLoginMutation} from "../../libs/features/auth/authApiSlice.ts";
+import {useAppDispatch} from "../../app/hooks.ts";
+import {setCredentials} from "../../libs/features/auth/authSlice.ts";
 
 
+interface LoginFormData{
+    email: string,
+    password: string,
+}
 
 export default function AdminLogin(){
+    const [adminLogin ] = useAdminLoginMutation();
+    const dispatch = useAppDispatch();
+
     const [loginError, setLoginError] = useState(false);
-    const { setAdminAuth } = useApp()!;
     const navigate = useNavigate();
-    const {register,handleSubmit, formState: {errors} } = useForm();
+    const {register,handleSubmit, formState: {errors} } = useForm<LoginFormData>();
 
-    const adminLogin = async(data: any)=> {
+    const adminLoginSubmit = async(data: LoginFormData)=> {
         try{
-            const res = await fetch(`http://localhost:8800/api/v1/admin/login`,{
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+            const result = await adminLogin(data).unwrap();
+            dispatch(setCredentials(result.user));
+            navigate("/admin");
 
-            });
-            if(!res.ok){
-                setLoginError(true);
-                return false;
-            }
-            const { token} = await res.json();
-            localStorage.setItem("token", token);
-            const verifyRes = await fetch(`http://localhost:8800/api/v1/admin/verify`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-
-            });
-            if(verifyRes.ok){
-                const loginAdmin = await verifyRes.json();
-                setAdminAuth(loginAdmin);
-                navigate("/admin");
-                return true;
-                
-            }
-
-
-        }catch(err:any){
+        }catch(error){
+            console.log(error);
             setLoginError(true);
         }
     }
@@ -66,7 +49,7 @@ export default function AdminLogin(){
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit(adminLogin)} className="space-y-6">
+                <form onSubmit={handleSubmit(adminLoginSubmit)} className="space-y-6">
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-300">
                             Email Address

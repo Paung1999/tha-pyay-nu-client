@@ -12,7 +12,20 @@ export type Book = {
     isbn: string;
     coverImage: string;
     description: string;
+    language: string;
+    genres: Genre[];
    }
+};
+
+export type CatalogBook = {
+    id: number;
+    title: string;
+    author: string;
+    isbn: string | null;
+    coverImage: string;
+    description: string;
+    language: string;
+    genres?: { id: number; name: string }[];
 };
 
 export type User = {
@@ -37,6 +50,11 @@ export type CartItem  = {
   quantity: number;
 }
 
+interface ShippingAddress {
+    phone: string;
+    address: string;
+}
+
 export type Order = {
     id: number;
     userId: number;
@@ -45,7 +63,7 @@ export type Order = {
     status: string;
     subtotal: number;
     total: number;
-    shippingAddressSnapshot: string;
+    shippingAddressSnapshot: ShippingAddress | string;
     orderItems: OrderItem[];
     createdAt: Date;
     updatedAt: Date;

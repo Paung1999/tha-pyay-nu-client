@@ -1,18 +1,17 @@
 import { ArrowLeft, BookIcon, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { useMutation,useQueryClient, useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-
-const api = "http://localhost:8800/api/v1/admin";
-
+import {useSaveAdminBookMutation} from "../../libs/features/book/bookApiSlice.ts";
+import {useGetAdminGenresQuery} from "../../libs/features/genre/genreApiSlice.ts";
 
 export default function AddBook(){
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
     const { register, handleSubmit, watch, formState: { errors}} = useForm();
+    const [saveBook, ] = useSaveAdminBookMutation();
+
     const coverImageFile = watch("coverImage");
-    const [previewUrl, setPreviewUrl] = useState<string | null >(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
     useEffect(()=> {
         if(coverImageFile && coverImageFile.length > 0){
@@ -22,52 +21,8 @@ export default function AddBook(){
         }
     },[coverImageFile])
 
-    const {data: availableGenres=[], isLoading, } = useQuery({
-        queryKey: ["genres"],
-        queryFn: async()=> {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${api}/genres`,{
-                method: "GET",
-                headers: {
-                    "Authorization" : `Bearer ${token}`
-                }
-            });
-            if(!res.ok){
-                throw new Error("Failed to fetch genres");
+    const {data: availableGenres = [], isLoading, } = useGetAdminGenresQuery(undefined);
 
-            }
-            return res.json();
-        }
-    })
-
-   
-    const addBookMutation = useMutation({
-        mutationFn: async (formData: FormData) => {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${api}/books`,{
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                },
-                body: formData
-            });
-            if(!res.ok){
-                if (res.status === 401) throw new Error("Unauthorized: Please log in again");
-                throw new Error("Failed to add book");
-            
-            }
-            return res.json()
-
-        },
-        onSuccess: ()=> {
-            queryClient.invalidateQueries({queryKey: ["books"]});
-            alert("Book added successfully");
-            navigate("/admin/inventory");
-        },
-        onError: (error: any)=> {
-            alert(error.message);
-        }
-    });
 
     const onSubmit = (data: any) => {
         const formData = new FormData();
@@ -84,7 +39,9 @@ export default function AddBook(){
         if (data.coverImage && data.coverImage.length > 0) {
             formData.append("coverImage", data.coverImage[0]);
         }
-        addBookMutation.mutate(formData);
+        saveBook(formData);
+        alert('New book added successfully.');
+        navigate('/admin/inventory')
 
     }
     if(isLoading) {

@@ -1,35 +1,16 @@
 
-import { useQuery } from "@tanstack/react-query";
-import type { Order } from "../../global/types";
 import Loading from "../../components/Loading";
 
 import { Banknote, BookOpenCheck, User2 } from "lucide-react";
+import {useGetAdminOrdersQuery,} from "../../libs/features/orders/orderApiSlice.ts";
+import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
 
-// interface TotalRevenuesProps {
-//     total: string;
-// }
 
-const api = "http://localhost:8800/api/v1/admin";
 
-export default function Dashboard(){
+ function Dashboard(){
 
-    const {data: orders, isLoading, isError} = useQuery<Order[]>({
-        queryKey: ["orders"],
-        queryFn: async()=> {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${api}/orders`,{
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                
-                }
-            });
-            if(!res.ok){
-                throw new Error("Something went wrong");
-            }
-            return res.json();
-        }
-    });
+    const {data: orders, isLoading, isError} = useGetAdminOrdersQuery(undefined);
+
     if(isLoading){
         return <Loading />
     }
@@ -132,6 +113,7 @@ export default function Dashboard(){
         </div>
     );
 
-
-
 }
+
+ const AuthDashboard = WithAdminAuth(Dashboard);
+ export default AuthDashboard;

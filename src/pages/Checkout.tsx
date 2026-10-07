@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useForm} from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import {useAppDispatch, useAppSelector} from "../app/hooks.ts";
-import {selectCartItem, selectCartTotal} from "../libs/features/cartSlice.ts";
+import {clearCart, selectCartItem, selectCartTotal} from "../libs/features/cart/cartSlice.ts";
+import {useCheckOutMutation} from "../libs/features/orders/orderApiSlice.ts";
 
-const api = 'http://localhost:8800/api/v1/orders'
 
 type CheckoutInputs = {
     address: string;
@@ -16,6 +16,7 @@ export default function Checkout(){
     const dispatch = useAppDispatch();
     const cartItems = useAppSelector(selectCartItem);
     const totalCost = useAppSelector(selectCartTotal)
+    const [checkOut] = useCheckOutMutation();
     const navigate = useNavigate();
     const {
         register,
@@ -23,34 +24,26 @@ export default function Checkout(){
         formState: {errors}
     } = useForm<CheckoutInputs>();
 
-
-
     const onSubmit: SubmitHandler<CheckoutInputs> = async(data) => {
         if(cartItems?.length === 0){
             navigate("/");
             return;
         }
-
         try{
-            const token = localStorage.getItem('token');
-            const res = await fetch(`${api}/checkout`,{
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    items: cartItems,
-                    shippingAddress: `${data.address} (Phone: ${data.phone})`,
-                })
-            });
+             await checkOut({
+                items: cartItems.map((item)=>({
+                    sellBookId: item.sellBookId,
+                    quantity: item.quantity,
+                })),
+                shippingAddress:{
+                    address: data.address,
+                    phone: data.phone,
+                }
+            }).unwrap();
 
-            if(!res.ok){
-                throw new Error('Something went wrong');
-            }
-            const responseData = await res.json();
-            dispatch({type: 'CLEAR_CART'});
-            navigate(`/order-success/${responseData.newOrder.orderNumber}`);
+            dispatch(clearCart());
+
+            navigate(`/orders`);
 
         }catch(err:any){
             console.log(err);

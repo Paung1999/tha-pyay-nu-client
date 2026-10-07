@@ -12,8 +12,8 @@ export default function App(){
     <div>
       <header className="sticky top-0 z-50 bg-[#0f172a] shadow-md border-b border-slate-800">
    
-      <Header/>
-</header>
+        <Header/>
+      </header>
       <div className="flex flex-row flex-1 overflow-hidden">
         <AppDrawer />
         <CartDrawer/>

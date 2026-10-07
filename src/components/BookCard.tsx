@@ -1,7 +1,7 @@
 import type { Book } from "../global/types";
 import { Link } from "react-router-dom";
 import { useAppDispatch } from './../app/hooks.ts'
-import {addToCart, openCart} from "./../libs/features/cartSlice.ts";
+import {addToCart, openCart} from "../libs/features/cart/cartSlice.ts";
 
 interface BookCardProps {
     listedBook: Book;
@@ -18,9 +18,10 @@ export default function BookCard({ listedBook }: BookCardProps) {
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden bg-slate-800 rounded-lg border border-slate-700 shadow-lg hover:shadow-xl hover:border-slate-600 transition-all duration-300 hover:-translate-y-1.5 group">
+    <div className="flex flex-col overflow-hidden bg-slate-800 rounded-lg border border-slate-700 shadow-lg
+     hover:shadow-xl hover:border-slate-600 transition-all duration-300 hover:-translate-y-1.5 group">
       
-      <Link to={`/books/${listedBook.book.id}`} className="relative aspect-[2/3] w-full overflow-hidden bg-slate-700">
+      <Link to={`/books/${listedBook.id}`} className="relative aspect-[4/5] sm:aspect-[2/3] w-full overflow-hidden bg-slate-700">
           <img
             src={listedBook.book.coverImage}
             alt={listedBook.book.title}
@@ -29,8 +30,8 @@ export default function BookCard({ listedBook }: BookCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </Link>
 
-      <div className="flex flex-col flex-1 p-4">
-        <Link to={`/books/${listedBook.book.id}`}>
+      <div className="flex flex-col flex-1 p-3 sm:p-4   ">
+        <Link to={`/books/${listedBook.id}`}>
           <h1 className="text-white font-semibold text-base line-clamp-1 group-hover:text-indigo-400 transition-colors">
             {listedBook.book.title}
           </h1>

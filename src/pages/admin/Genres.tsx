@@ -1,60 +1,20 @@
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"
-import type { Genre } from "../../global/types";
+
 import Loading from "../../components/Loading";
-import { Trash2, SquarePen } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useGetAdminGenresQuery} from "../../libs/features/genre/genreApiSlice.ts";
+import DeleteGenreButton from "../../components/DeleteGenreButton.tsx";
+import EditGenreButton from "../../components/EditGenreButton.tsx";
+import GenreDialog from "../../components/GenreDialog.tsx";
+import useDialog from "../../hooks/useDialog.ts";
 
-
-
-const api = "http://localhost:8800/api/v1/admin";
 
 export default function Genres(){
-    const queryClient = useQueryClient();
-    const navigate = useNavigate();
-    const {data: genres, isLoading, isError} = useQuery<Genre[]>({
-        queryKey: ["genres"],
-        queryFn: async() => {
-            const token = localStorage.getItem("token");
+    const {open, setOpen, handleClose } = useDialog();
 
-            const res = await fetch(`${api}/genres`,{
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-            if(!res.ok){
-                if (res.status === 401) throw new Error("Unauthorized: Please log in again");
-                throw new Error("Failed to fetch genres");
-            }
-            return res.json();
-        }
-    });
+    const newGenreHandler = () => {
+        setOpen(true);
+    }
 
-    const deleteMutation = useMutation({
-        mutationFn: async(genreId: number) => {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${api}/genres/${genreId}`,{
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`
-
-                }
-            });
-            if(!res.ok){
-                throw new Error("Failed to delete genre");
-
-            }
-           
-
-        },
-        onSuccess: ()=> {
-            queryClient.invalidateQueries({queryKey: ["genres"]});
-            alert("Genre deleted successfully");
-        },
-        onError: (error)=> {
-            alert(error.message);
-        }
-    })
+    const {data: genres, isLoading, isError} = useGetAdminGenresQuery(undefined);
 
     if(isLoading){
         return <Loading />
@@ -71,11 +31,16 @@ export default function Genres(){
                 </div>
 
                 <div>
-                    <button onClick={()=>navigate("/admin/genres/add-genre")}
+                    <button onClick={()=>newGenreHandler()}
                         className="bg-indigo-800 hover:bg-indigo-700 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors cursor-pointer">
                         Add Genre
                     </button>
                 </div>
+
+                <GenreDialog
+                    open={open}
+                    handleClose={handleClose}
+                />
 
             </div>
 
@@ -96,13 +61,8 @@ export default function Genres(){
                                 <td className="p-4 text-white font-semibold">{genre.name}</td>
                                 <td className="p-4 text-right">
                                     <div className="flex gap-3 justify-end">
-                                        <button className="text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer mr-3">
-                                            <SquarePen size={20} />
-                                        </button>
-                                        <button onClick={()=>deleteMutation.mutate(genre.id)} 
-                                        className="text-red-700 hover:text-red-800 transition-colors cursor-pointer mr-3">
-                                            <Trash2 size={20} />
-                                        </button>
+                                        <EditGenreButton genre={genre}/>
+                                        <DeleteGenreButton genre={genre} />
 
                                     </div>
                                 </td>

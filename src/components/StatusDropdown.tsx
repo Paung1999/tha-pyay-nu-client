@@ -1,4 +1,5 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import {useUpdateOrderByAdminMutation} from "../libs/features/orders/orderApiSlice.ts";
 
 const getStatusColor = (status: string)=>{
     switch(status?.toUpperCase()){
@@ -11,40 +12,28 @@ const getStatusColor = (status: string)=>{
     }
 };
 
-const api = "http://localhost:8800/api/v1/admin";
 
 export default function StatusDropdown({orderId, currentStatus}: {orderId: number, currentStatus: string}){
-    const queryClient = useQueryClient();
-    const updateStatusMutation = useMutation({
-        mutationFn: async(newStatus: string)=> {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${api}/orders/${orderId}/status`,{
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({status: newStatus})
-            });
-            if(!res.ok){
-                throw new Error("Something went wrong");
-            }
-            return res.json();
-        },
-        onSuccess: ()=> {
-            queryClient.invalidateQueries({queryKey: ["orders"]});
-        },
+    const [updateStatus, {isLoading}] = useUpdateOrderByAdminMutation();
 
-    })
+    const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        try{
+            await updateStatus({orderId, status: e.target.value }).unwrap()
+
+        }catch(e){
+            console.error(e);
+        }
+    }
+
     return(
         <select value={currentStatus}
-            onChange={(e)=> updateStatusMutation.mutate(e.target.value)}
-            disabled={updateStatusMutation.isPending}
+            onChange={handleChange}
+            disabled={isLoading}
             className={`
                 px-3 py-1.5 text-xs font-semibold rounded-lg border shadow-sm
                 cursor-pointer outline-none transition-all
                 ${getStatusColor(currentStatus)}
-                ${updateStatusMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 focus:ring-2 focus:ring-offset-1 focus:ring-offset-slate-900'}
+                ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 focus:ring-2 focus:ring-offset-1 focus:ring-offset-slate-900'}
             `}
         >
             <option value="CREATED" className="bg-slate-900 text-slate-300">Created</option>

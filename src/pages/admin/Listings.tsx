@@ -1,15 +1,18 @@
-import { useQuery, } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
-import Loading from "../../components/Loading";
-import type { Book } from "../../global/types";
-import { Dot, Search, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import DelistBookButton from "../../components/DelistBookButton.tsx";
 
-const api = "http://localhost:8800/api/v1/admin";
+import Loading from "../../components/Loading";
+import { Dot, Search, X } from "lucide-react";
+import {useEffect, useRef, useState} from "react";
+import DelistBookButton from "../../components/DelistBookButton.tsx";
+import {useGetListingsQuery} from "../../libs/features/listing/listingApiSlice.ts";
+import useDialog from "../../hooks/useDialog.ts";
+import type {Book} from "../../global/types.ts";
+import ListingDialog from "../../components/ListingDialog.tsx";
+
+
 
 function useDebounce(value: string, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState(value);
+
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(handler);
@@ -20,7 +23,8 @@ function useDebounce(value: string, delay: number) {
 
 export default function Listings() {
 
-  const navigate = useNavigate();
+  const {open:listingDlgOpen, setOpen:listingDlgSetOpen , handleClose} = useDialog();
+  const selectedBookRef = useRef<Book | undefined>(undefined);
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput, 500);
 
@@ -28,27 +32,7 @@ export default function Listings() {
     data: books,
     isLoading,
     isError,
-  } = useQuery<Book[]>({
-    queryKey: ["books", debouncedSearch],
-    queryFn: async () => {
-      const token = localStorage.getItem("token");
-      const endpoint = debouncedSearch.trim()
-        ? `${api}/sell-books/search?q=${debouncedSearch.trim()}`
-        : `${api}/sell-books`;
-      const res = await fetch(endpoint, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) {
-        if (res.status === 401)
-          throw new Error("Unauthorized: Please log in again");
-        throw new Error("Failed to fetch books");
-      }
-      return res.json();
-    },
-  });
+  } = useGetListingsQuery(debouncedSearch);
 
 
   if (isLoading) {
@@ -60,6 +44,11 @@ export default function Listings() {
         Error loading listings. Are you logged in as an Admin?
       </div>
     );
+  }
+
+  const updateListingHandler = (listedBook: Book) => {
+    selectedBookRef.current = listedBook;
+    listingDlgSetOpen(true);
   }
 
   return (
@@ -145,9 +134,7 @@ export default function Listings() {
                 <td className="p-4 text-right">
                   <div className="flex gap-3 justify-end">
                     <button
-                      onClick={() =>
-                        navigate(`/admin/listings/edit-listed-book/${book.id}`)
-                      }
+                      onClick={() => updateListingHandler(book)}
                       className="text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer mr-3"
                     >
                       Edit
@@ -160,6 +147,7 @@ export default function Listings() {
           </tbody>
         </table>
       </div>
+      <ListingDialog open={listingDlgOpen} handleClose={handleClose} listedBookToEdit={selectedBookRef.current} />
     </div>
   );
 }

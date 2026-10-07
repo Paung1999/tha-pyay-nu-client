@@ -1,31 +1,22 @@
 import { useParams } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
 import Loading from "../components/Loading";
 import { ShoppingCart, Tag, Globe, Hash, BookOpen } from "lucide-react";
 import {useAppDispatch} from "../app/hooks";
-import {addToCart, openCart} from "../libs/features/cartSlice.ts";
+import {addToCart, openCart} from "../libs/features/cart/cartSlice.ts";
 import "./../globals.css";
+import {useGetBookByIdQuery} from "../libs/features/book/bookApiSlice.ts";
 
-const api = "http://localhost:8800/api/v1/books"
 
 export default function BookDetails(){
     const {id} = useParams();
     const dispatch = useAppDispatch();
-    const {data:listedBook, isLoading, isError } = useQuery({
-        queryKey: ["listedBook", id],
-        queryFn: async()=> {
-            const res = await fetch(`${api}/${id}`);
-            if(!res.ok){
-                throw new Error("Can't fetch book detail")
-            }
-            return res.json()
-        }
-    });
+
+    const {data:listedBook, isLoading, isError } = useGetBookByIdQuery(id!)
     if(isLoading){
        return <Loading />
 
     }
-    if(isError){
+    if(isError || !listedBook){
         return (
             <div className="flex items-center justify-center min-h-screen bg-slate-900 text-red-500">
                 <h1 className="text-2xl font-bold">Something went wrong</h1>
@@ -88,7 +79,7 @@ export default function BookDetails(){
                                         <Tag size={18} className="text-indigo-400" />
                                         <span className="text-xs font-bold uppercase tracking-wider">Genre</span>
                                     </div>
-                                    <p className="text-lg font-semibold text-white">{listedBook.book.gereName || "Unknown"}</p>
+                                    <p className="text-lg font-semibold text-white">{listedBook.book.genres.map((g)=> g.name).join(", ")}</p>
                                 </div>
 
                                 <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 hover:border-indigo-500/30 transition-colors">

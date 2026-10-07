@@ -7,7 +7,7 @@ import {
     selectCartItem,
     selectCartItemCount, selectCartTotal,
     selectIsCartOpen,
-} from "../libs/features/cartSlice.ts";
+} from "../libs/features/cart/cartSlice.ts";
 
 
 

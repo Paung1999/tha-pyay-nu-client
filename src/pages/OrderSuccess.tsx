@@ -1,41 +1,53 @@
-import { useQuery } from "@tanstack/react-query";
+
 import Loading from "../components/Loading";
-import type { Order } from "../global/types";
+
 import { useParams, Link } from "react-router-dom";
 import {  Truck, ShoppingBag, CheckCircle2} from "lucide-react";
 import OrderTracker from "../components/OrderTracker";
+import {useGetClientOrderByIdQuery} from "../libs/features/orders/orderApiSlice.ts";
 
-const api = "http://localhost:8800/api/v1/orders";
+const OLD_FORMAT = /^(.*?)\s*\(Phone:\s*([^)]+)\)\s*$/i;
 
+interface ParsedShipping {
+    address: string;
+    phone: string | null;
+}
+
+export const parseShipping = (snapshot: unknown): ParsedShipping => {
+    if (!snapshot) return { address: "No address provided", phone: null };
+
+    // old orders: plain string
+    if (typeof snapshot === "string") {
+        const match = snapshot.match(OLD_FORMAT);
+        if (match) {
+            return { address: match[1].trim(), phone: match[2].trim() };
+        }
+        // string without a phone part: keep the whole thing as the address
+        return { address: snapshot, phone: null };
+    }
+
+    // new orders: { phone, address }
+    const s = snapshot as { address?: string; phone?: string };
+    return {
+        address: s.address ?? "No address provided",
+        phone: s.phone ?? null,
+    };
+};
 
 export default function OrderSuccess(){
     const {orderNumber} = useParams();
-    const {data: order, isLoading,isError} = useQuery<Order>({
-        queryKey: ["order", orderNumber],
-        queryFn: async()=> {
-            const res = await fetch(`${api}/${orderNumber}`,{
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${localStorage.getItem("token")}`
-                }
-            });
-            if(!res.ok){
-                throw new Error("Something went wrong")
-            }
-            return res.json();
-        },
-        staleTime: 1000 * 60 * 60 *24,
-        enabled: !!orderNumber
-    });
+    const {data: order, isLoading,isError} = useGetClientOrderByIdQuery(orderNumber!);
+    const {address,phone } = parseShipping(order?.shippingAddressSnapshot)
     if(isLoading){
         return <Loading />
     }
     if(isError){
         return <h1>Something went wrong</h1>
     }
+
     return(
         <div className="max-w-5xl mx-auto p-4 md:p-8 min-h-[80vh] flex flex-col items-center justify-center">
-            
+
            
             <div className="flex flex-col items-center text-center mb-12">
                 <OrderTracker status={order!.status} />
@@ -44,7 +56,7 @@ export default function OrderSuccess(){
                 </div>
                 
 
-                <h1 className="text-4xl md:text-5xl font-black text-slate-700 mb-4 tracking-tight">Order Confirmed!</h1>
+                <h1 className="text-4xl md:text-5xl font-black text-slate-200 mb-4 tracking-tight">Order Confirmed!</h1>
                 <p className="text-slate-400 text-lg md:text-xl max-w-xl leading-relaxed">
                     Thank you for your purchase. We're preparing your journey into new worlds.
                 </p>
@@ -72,8 +84,14 @@ export default function OrderSuccess(){
                         <div>
                             <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider">Shipping Address</p>
                             <p className="text-slate-300 leading-relaxed max-w-[250px]">
-                                {order?.shippingAddressSnapshot}
+                                {address}
                             </p>
+
+                            <p className="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider mt-2">Phone </p>
+                            <p className="text-slate-300 leading-relaxed max-w-[250px]">
+                                {phone}
+                            </p>
+
                         </div>
                     </div>
 
