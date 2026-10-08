@@ -5,8 +5,6 @@ import { Banknote, BookOpenCheck, User2 } from "lucide-react";
 import {useGetAdminOrdersQuery,} from "../../libs/features/orders/orderApiSlice.ts";
 import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
 
-
-
  function Dashboard(){
 
     const {data: orders, isLoading, isError} = useGetAdminOrdersQuery(undefined);
@@ -21,21 +19,15 @@ import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
     const totalRevenue = orders?.reduce((total, order) => total + order.total,0);
 
    const totalBookSold = orders
-    // 1. Filter out the cancelled orders (Fixed typo)
-    ?.filter(order => order.status !== "CANCELLED") 
-    // 2. Reduce the remaining orders
+    ?.filter(order => order.status !== "CANCELLED")
     .reduce((total, order) => {
-        // 3. Add up the 'quantity' of each item in this specific order
         const booksInThisOrder = order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
-        
-        // 4. Add it to the grand total
         return total + booksInThisOrder;
     }, 0) || 0;
 
     const totalCustomers = orders?.reduce<number[]>((uniqueIds, order)=>{
         if(!uniqueIds.includes(order.userId)){
             uniqueIds.push(order.userId);
-        
         }
         return uniqueIds;
     },[]).length || 0;

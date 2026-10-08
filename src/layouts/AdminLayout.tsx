@@ -28,7 +28,7 @@ export default function AdminLayout() {
               </button>
           </header>
 
-          <div className="flex min-h-0 flex-1">
+          <div className="flex flex-row flex-1 overflow-hidden">
               <AdminAppDrawer />
 
               <main className="min-w-0 flex-1 overflow-y-auto bg-slate-900 p-4 sm:p-6 lg:p-8">

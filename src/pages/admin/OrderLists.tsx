@@ -29,7 +29,6 @@ export default function OrderLists() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full">
-        {/* Card 1: Total Orders */}
         <div className="bg-[#1e2336] border border-slate-800 border-l-4 border-l-indigo-500 rounded-xl p-6 hover:bg-slate-800 transition-all shadow-lg group">
           <div className="flex justify-between items-start">
             <div className="flex flex-col">

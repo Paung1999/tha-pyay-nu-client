@@ -20,13 +20,14 @@ export const authSlice = createSlice({
         setCredentials: (state, action:PayloadAction<User>) => {
             state.user = action.payload
             state.isAuthenticated = true;
+            state.isInitialized = true
         },
         logoutAction: (state) => {
             state.user = null
             state.isAuthenticated = false
         },
         setAuthInitialized:(state)=>{
-            state.isAuthenticated = state.isAuthenticated
+            state.isInitialized= true
         }
 
     },

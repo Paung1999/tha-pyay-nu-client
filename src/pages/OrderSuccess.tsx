@@ -16,17 +16,15 @@ interface ParsedShipping {
 export const parseShipping = (snapshot: unknown): ParsedShipping => {
     if (!snapshot) return { address: "No address provided", phone: null };
 
-    // old orders: plain string
     if (typeof snapshot === "string") {
         const match = snapshot.match(OLD_FORMAT);
         if (match) {
             return { address: match[1].trim(), phone: match[2].trim() };
         }
-        // string without a phone part: keep the whole thing as the address
         return { address: snapshot, phone: null };
     }
 
-    // new orders: { phone, address }
+
     const s = snapshot as { address?: string; phone?: string };
     return {
         address: s.address ?? "No address provided",

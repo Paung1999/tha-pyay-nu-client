@@ -9,6 +9,8 @@ export default function WithAdminAuth(Component:any){
         const isInitialized = useAppSelector(selectAuthInitialized);
         const navigate = useNavigate();
 
+        console.log({ isInitialized, isAuthenticated });
+
         useEffect(() => {
             if(isInitialized && !isAuthenticated){
                 navigate('/admin/login')

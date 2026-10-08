@@ -20,5 +20,5 @@ export interface RegisterInput {
     name: string;
     email: string;
     password: string;
-    confirmPassword: string; // your zod schema requires it
+    confirmPassword: string;
 }
