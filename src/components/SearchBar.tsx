@@ -44,7 +44,7 @@ export default function SearchBar(){
     }, []);
 
     return(
-        <div ref={containerRef} className='relative w-full  '>
+        <div ref={containerRef} className='relative max-w-7xl mx-auto  '>
             <div className="relative group">
                 <form onSubmit={handleSearchSubmit}>
                     <input

@@ -5,7 +5,7 @@
 ## Features
 - Users can register and log in 
 - Users can browse books and checkout the cart
-- Users can check orders out
+- Users can track orders
 
 ## Tech Stack 
 - Frontend: React, TypeScript, Vite, Tailwind CSS , Redux Toolkit

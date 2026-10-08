@@ -7,7 +7,6 @@ export default function AdminLayout() {
     const {openDrawer, setOpenDrawer} = useApp()!;
 
 
-
   return (
       <div className="flex h-screen flex-col overflow-hidden bg-slate-900 text-white">
 
