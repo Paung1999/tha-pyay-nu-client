@@ -4,7 +4,7 @@ import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:8800/api/v1',
+        baseUrl: import.meta.env.VITE_API_URL,
         credentials: "include",
     }),
     tagTypes: ['Book', 'Genre','Order', 'listing', 'MyOrders', 'SpecificOrder'],
