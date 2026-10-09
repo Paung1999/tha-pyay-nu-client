@@ -54,8 +54,13 @@ export const orderApiSlice = apiSlice.injectEndpoints({
         }),
         getClientOrderById: builder.query<Order,string>({
             query: (orderNumber) => `/orders/my-orders/${orderNumber}`,
-            transformResponse: (response: ApiResponse<Order>) => response.data,
-            providesTags: (result, error, orderNumber) => [
+            transformResponse: (response: ApiResponse<Order>) => {
+                if (!response.data) {
+                    throw new Error("Order not found");
+                }
+                return response.data
+            },
+            providesTags: (_result, _error, orderNumber) => [
                 { type: 'SpecificOrder', id: orderNumber },
             ],
         }),
@@ -65,7 +70,12 @@ export const orderApiSlice = apiSlice.injectEndpoints({
                 method: 'POST',
                 body: body
             }),
-            transformResponse: (response: ApiResponse<{ newOrder: Order }>) => response.data,
+            transformResponse: (response: ApiResponse<{ newOrder: Order }>) =>{
+                if (!response.data) {
+                    throw new Error("Order not found");
+                }
+                return response.data.newOrder
+            },
             async onQueryStarted(_arg,{dispatch,queryFulfilled}){
                 try{
                     const{data:newOrder} = await queryFulfilled;

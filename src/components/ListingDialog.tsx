@@ -53,6 +53,7 @@ export default function ListingDialog({open, handleClose, listedBookToEdit, book
           await  updateListedBook({id:listedBookToEdit.id, body: data}).unwrap();
           notify?.success('Listing updated successfully.');
         }else{
+            if (bookId === undefined) return;
            await listBook({...data, bookId}).unwrap();
            notify?.success('Listing  successfully.');
 
