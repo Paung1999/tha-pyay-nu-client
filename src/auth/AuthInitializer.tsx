@@ -16,11 +16,7 @@ export default function AuthInitializer({children}:{children:React.ReactNode}) {
         if(!isLoading){
             dispatch(setAuthInitialized())
         }
-    },[data,dispatch, isLoading])
-
-    if(isLoading){
-        return null;
-    }
+    },[data,dispatch, isLoading, isError]);
 
     return children;
 
