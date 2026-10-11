@@ -45,7 +45,7 @@ export default function OrderLists() {
           </div>
         </div>
 
-        {/* Card 2: Pending Orders */}
+
         <div className="bg-[#1e2336] border border-slate-800 border-l-4 border-l-amber-500 rounded-xl p-6 hover:bg-slate-800 transition-all shadow-lg group">
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
@@ -65,7 +65,7 @@ export default function OrderLists() {
           </div>
         </div>
 
-        {/* Card 3: Orders in Transit */}
+
         <div className="bg-[#1e2336] border border-slate-800 border-l-4 border-l-blue-500 rounded-xl p-6 hover:bg-slate-800 transition-all shadow-lg group">
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
@@ -84,7 +84,7 @@ export default function OrderLists() {
         </div>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-md overflow-hidden">
+      <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-md overflow-x-auto">
         <table className="w-full text-left border border-collapse">
           <thead>
             <tr className="bg-slate-900/50 text-slate-400 text-sm border-b border-slate-700">
@@ -94,7 +94,6 @@ export default function OrderLists() {
               <th className="p-4 font-medium w-24">Items</th>
               <th className="p-4 font-medium w-24">Total</th>
               <th className="p-4 font-medium w-24">Status</th>
-              {/* <th className="p-4 font-medium w-24">Actions</th> */}
             </tr>
           </thead>
           <tbody>

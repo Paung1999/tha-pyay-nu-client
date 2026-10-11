@@ -81,7 +81,7 @@ export default function Listings() {
         </div>
       </div>
 
-      <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-md overflow-hidden">
+      <div className="bg-slate-800 rounded-xl border border-slate-700 shadow-md overflow-x-auto">
         <table className="w-full text-left border border-collapse">
           <thead>
             <tr className="bg-slate-900/50 text-slate-400 text-sm border-b border-slate-700">
