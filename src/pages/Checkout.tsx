@@ -5,6 +5,9 @@ import type { SubmitHandler } from "react-hook-form";
 import {useAppDispatch, useAppSelector} from "../app/hooks.ts";
 import {clearCart, selectCartItem, selectCartTotal} from "../libs/features/cart/cartSlice.ts";
 import {useCheckOutMutation} from "../libs/features/orders/orderApiSlice.ts";
+import {useState} from "react";
+import useDialog from "../hooks/useDialog.ts";
+import CheckoutSuccessDialog from "../components/CheckoutSuccessDialog.tsx";
 
 
 type CheckoutInputs = {
@@ -18,6 +21,9 @@ export default function Checkout(){
     const totalCost = useAppSelector(selectCartTotal)
     const [checkOut] = useCheckOutMutation();
     const navigate = useNavigate();
+    const [processing, setProcessing] = useState(false);
+    const {open:successDialog,setOpen:successDialogSetOpen, handleClose} = useDialog();
+
     const {
         register,
         handleSubmit,
@@ -29,6 +35,7 @@ export default function Checkout(){
             navigate("/");
             return;
         }
+        setProcessing(true);
         try{
              await checkOut({
                 items: cartItems.map((item)=>({
@@ -43,10 +50,11 @@ export default function Checkout(){
 
             dispatch(clearCart());
 
-            navigate(`/orders`);
-
         }catch(err:any){
             console.log(err);
+        }finally {
+            setProcessing(false);
+            successDialogSetOpen(true);
         }
     }
 
@@ -83,11 +91,13 @@ export default function Checkout(){
                             {errors.phone && <p className="text-red-500 text-sm ml-1">{errors.phone.message}</p>}
 
                         </div>
-                        <button 
+                        <button
+                            disabled={processing}
                             type="submit"
-                            className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-bold py-4 px-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20 cursor-pointer text-lg"
+                            className={`w-full mt-2 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white 
+                            font-bold py-4 px-4 rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-indigo-600/20 ${processing? 'cursor-default': 'cursor-pointer'} text-lg`}
                         >
-                            Place Order
+                            {processing ? 'Placing order...': 'Place Order'}
                         </button>
                     </form>
                 </div>
@@ -124,6 +134,8 @@ export default function Checkout(){
                     </div>
                 </div>
             </div>
+
+            <CheckoutSuccessDialog open={successDialog} handleClose={handleClose}/>
         </div>
     )
 }
