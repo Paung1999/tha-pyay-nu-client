@@ -1,14 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from  "react-router-dom";
 import {useRegisterMutation} from "../libs/features/auth/authApiSlice.ts";
-
-
-interface RegisisterFormdata{
-    name: string,
-    email: string,
-    password: string,
-    confirmPassword: string,
-}
+import {type RegisterFormData, registerSchema} from "../libs/features/schema/auth/registerSchema.ts";
+import {zodResolver} from "@hookform/resolvers/zod";
 
 export default function Register(){
     const navigate =  useNavigate();
@@ -17,9 +11,11 @@ export default function Register(){
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<RegisisterFormdata>();
+    } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema)
+    });
 
-    const registerNewUser = async(data: RegisisterFormdata)=> {
+    const registerNewUser = async(data: RegisterFormData)=> {
         try{
             await registerUser(data).unwrap();
             navigate('/sign-in')
@@ -40,7 +36,7 @@ export default function Register(){
             <form onSubmit={handleSubmit(registerNewUser)} className="flex flex-col gap-5">
                 <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-semibold text-slate-200 ml-1">Enter your name</label>
-                    <input type="text" {...register("name",{ required: "Email is required"} )} 
+                    <input type="text" {...register("name",{ required: "Name is required"} )}
                         placeholder="Your Name"
                         className="w-full px-4 py-3 rounded-lg text-white bg-slate-900/50 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />

@@ -3,11 +3,8 @@ import { useNavigate } from "react-router-dom"
 import {useLoginMutation} from "../libs/features/auth/authApiSlice.ts";
 import {useAppDispatch} from "../app/hooks.ts";
 import {setCredentials} from "../libs/features/auth/authSlice.ts";
-
-interface LoginFormData{
-    email: string,
-    password: string,
-}
+import  { type LoginFormData, loginSchema} from '../libs/features/schema/auth/loginSchema.ts'
+import {zodResolver} from "@hookform/resolvers/zod";
 
 export default function Login(){
 
@@ -20,7 +17,9 @@ export default function Login(){
         handleSubmit,
         formState: { errors },
 
-    } = useForm<LoginFormData>();
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema)
+    });
 
     const onSubmit = async(data:LoginFormData) => {
         try{
