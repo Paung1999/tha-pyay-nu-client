@@ -2,29 +2,103 @@
 
 import StatusDropdown from "../../components/StatusDropdown";
 import Loading from "../../components/Loading";
-import { ClipboardList, Clock, Truck } from "lucide-react";
+import {ClipboardList, Clock, Funnel, Truck} from "lucide-react";
 import {useGetAdminOrdersQuery} from "../../libs/features/orders/orderApiSlice.ts";
+import {useEffect, useRef, useState} from "react";
+import {Pagination} from "@mui/material";
 
+const STATUS_FILTERS = [
+  { label: "All", value: undefined },
+  { label: "Pending", value: "PENDING" },
+  { label: "Paid", value: "PAID" },
+  { label: "Shipped", value: "SHIPPED" },
+  { label: "Delivered", value: "DELIVERED" },
+  { label: "Cancelled", value: "CANCELLED" },
+];
 
 export default function OrderLists() {
+  const [open, setOpen] = useState(false);
+  const [status, setStatus ] = useState<string|undefined>(undefined);
+  const [page, setPage] = useState(1);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const {
-    data: orders,
+    data,
     isLoading,
+    isFetching,
     isError,
-  } = useGetAdminOrdersQuery(undefined)
+  } = useGetAdminOrdersQuery({page,status});
+
+  const activeLabel = STATUS_FILTERS.find((f)=>f.value === status)?.label;
+
+  const handleSelect = (value: string | undefined) => {
+    setStatus(value);
+    setPage(1);
+    setOpen(false);
+  }
+
+  useEffect(() => {
+    const   handleClickOutside = (e:MouseEvent) => {
+      if(menuRef.current && !menuRef.current.contains(e.target as Node)){
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return ()=> document.removeEventListener("mousedown", handleClickOutside);
+
+  },[]);
 
   if (isLoading) {
     return <Loading />;
   }
-  if (isError) {
+  if (isError || !data) {
     return <h1>Something went wrong</h1>;
   }
+
+  const orders = data.data;
+  const pagination = data.pagination;
+
   return (
     <div className="max-w-7xl mx-auto spce-y-6 relative">
       <div className="flex flex-row justify-between items-center mb-4">
         <div className="">
           <h1 className="text-2xl font-bold text-white">Orders</h1>
           <p className="text-slate-400">Manage your orders here.</p>
+        </div>
+
+        <div className={'relative inline-block'}>
+          <button
+              type="button"
+              onClick={()=>setOpen((o)=> !o)}
+              className={'bg-slate-700 border border-slate-800 p-2 rounded-lg'}>
+            <div className={'flex flex-row justify-between items-center gap-1 '}>
+              <Funnel />
+              <span className={'text-slate-200'}>
+                {status ? `Filter: ${activeLabel}` : "Filter"}
+              </span>
+            </div>
+          </button>
+          {
+            open && (
+                <ul className={'absolute left-0 z-10 mt-1 w-40 overflow-hidden rounded-lg border border-slate-800 bg-slate-700 shadow-lg'}>
+                  {STATUS_FILTERS.map((f)=>(
+                      <li key={f.label}>
+                        <button
+                        type="button"
+                        onClick={()=>handleSelect(f.value)}
+                        className={`w-full px-3 py-2 text-left text-slate-200 hover:bg-slate-600 ${
+                            status === f.value ? "bg-slate-600" : ""
+                        }`}
+                        >
+                          {f.label}
+                        </button>
+
+                      </li>
+                  ))}
+                </ul>
+              )
+          }
+
         </div>
       </div>
 
@@ -153,6 +227,16 @@ export default function OrderLists() {
             ))}
           </tbody>
         </table>
+        {pagination?.totalPages > 1 && (
+            <Pagination
+                count={pagination?.totalPages}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                disabled={isFetching}
+                color={"standard"}
+                sx={{backgroundColor:'whitesmoke', textColor:'white'}}
+            />
+        )}
       </div>
     </div>
   );

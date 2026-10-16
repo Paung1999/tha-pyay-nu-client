@@ -1,6 +1,7 @@
 import {apiSlice} from "../api/apiSlice.ts";
 import type {ApiResponse} from "../../utils/ApiResponse.ts";
 import type {Order} from "../../../global/types.ts";
+import type {RootState} from "../../../app/store.ts";
 
 interface CheckOutItem{
     sellBookId: number;
@@ -15,13 +16,47 @@ interface CheckOutRequest{
     }
 }
 
+interface Pagination{
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+interface OrderResponse{
+    message: string;
+    data: Order[];
+    pagination: Pagination;
+}
+
+interface GetOrderArgs{
+    page?: number;
+    limit?: number;
+    status?: string | undefined
+}
+
+interface OrderStats{
+    totalRevenue: number;
+    totalBookSold: number;
+    totalCustomers: number;
+}
+
 export const orderApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getAdminOrders: builder.query<Order[], undefined>({
-            query:() => '/admin/orders',
-            transformResponse: (response:ApiResponse<Order[]>) => response.data?? [],
+        getAdminOrders: builder.query<OrderResponse, GetOrderArgs>({
+            query:({page, limit=10, status}) => ({
+                url: '/admin/orders',
+                params: {page,limit,status}
+            }),
             providesTags: ['Order'],
             keepUnusedDataFor: 60 * 60 * 24,
+        }),
+        getAdminOrderStats: builder.query<OrderStats, void>({
+            query:() => '/admin/orders/stats',
+            transformResponse:(response: ApiResponse<OrderStats>) =>
+                response.data ?? { totalRevenue: 0, totalBookSold: 0, totalCustomers: 0 },
+            providesTags: ['Order'],
+
         }),
         updateOrderByAdmin: builder.mutation<Order, {status: string, orderId:number }>({
             query:({status , orderId}) => ({
@@ -30,18 +65,22 @@ export const orderApiSlice = apiSlice.injectEndpoints({
                 body: {status}
             }),
 
-            async onQueryStarted({ orderId, status }, { dispatch, queryFulfilled }) {
-                const patchResult = dispatch(
-                    orderApiSlice.util.updateQueryData('getAdminOrders', undefined, (draft) => {
-                        const order = draft.find((o) => o.id === orderId);
-                        if (order) order.status = status;
-                    })
-                );
-
+            async onQueryStarted({ orderId, status }, { dispatch,getState, queryFulfilled }) {
+                const patches = orderApiSlice.util
+                    .selectInvalidatedBy(getState() as RootState, ['Order'])
+                    .filter(({ endpointName }) => endpointName === 'getAdminOrders')
+                    .map(({ originalArgs }) =>
+                        dispatch(
+                            orderApiSlice.util.updateQueryData('getAdminOrders', originalArgs, (draft) => {
+                                const order = draft.data.find((o) => o.id === orderId);
+                                if (order) order.status = status;
+                            })
+                        )
+                    );
                 try {
                     await queryFulfilled;
                 } catch {
-                    patchResult.undo();
+                    patches.forEach((patch) => patch.undo());
                 }
             },
 
@@ -97,7 +136,9 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     })
 });
 
-export const { useGetAdminOrdersQuery,
+export const {
+    useGetAdminOrdersQuery,
+    useGetAdminOrderStatsQuery,
     useUpdateOrderByAdminMutation,
     useGetClientOrdersQuery,
     useGetClientOrderByIdQuery,

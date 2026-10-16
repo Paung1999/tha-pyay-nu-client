@@ -1,5 +1,6 @@
 
 import {useUpdateOrderByAdminMutation} from "../libs/features/orders/orderApiSlice.ts";
+import {useNotify} from "../providers/NotifyProvider.tsx";
 
 const getStatusColor = (status: string)=>{
     switch(status?.toUpperCase()){
@@ -15,10 +16,12 @@ const getStatusColor = (status: string)=>{
 
 export default function StatusDropdown({orderId, currentStatus}: {orderId: number, currentStatus: string}){
     const [updateStatus, {isLoading}] = useUpdateOrderByAdminMutation();
+    const notify = useNotify();
 
     const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         try{
             await updateStatus({orderId, status: e.target.value }).unwrap()
+            notify?.success("Status updated successfully.");
 
         }catch(e){
             console.error(e);

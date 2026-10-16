@@ -2,12 +2,12 @@
 import Loading from "../../components/Loading";
 
 import { Banknote, BookOpenCheck, User2 } from "lucide-react";
-import {useGetAdminOrdersQuery,} from "../../libs/features/orders/orderApiSlice.ts";
+import { useGetAdminOrderStatsQuery,} from "../../libs/features/orders/orderApiSlice.ts";
 import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
 
  function Dashboard(){
 
-    const {data: orders, isLoading, isError} = useGetAdminOrdersQuery(undefined);
+    const {data: stats, isLoading, isError} = useGetAdminOrderStatsQuery()
 
     if(isLoading){
         return <Loading />
@@ -16,21 +16,6 @@ import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
         return <h1>Something went wrong</h1>
     }
 
-    const totalRevenue = orders?.reduce((total, order) => total + order.total,0);
-
-   const totalBookSold = orders
-    ?.filter(order => order.status !== "CANCELLED")
-    .reduce((total, order) => {
-        const booksInThisOrder = order.orderItems.reduce((sum, item) => sum + item.quantity, 0);
-        return total + booksInThisOrder;
-    }, 0) || 0;
-
-    const totalCustomers = orders?.reduce<number[]>((uniqueIds, order)=>{
-        if(!uniqueIds.includes(order.userId)){
-            uniqueIds.push(order.userId);
-        }
-        return uniqueIds;
-    },[]).length || 0;
 
 
 
@@ -53,7 +38,7 @@ import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
                                 Total revenue
                             </span>
                             <span className="text-3xl font-black text-white group-hover:scale-105 transition-transform origin-left">
-                                {totalRevenue?.toLocaleString() || 0}
+                                {stats?.totalRevenue?.toLocaleString() }
                             </span>
                             
                         </div>
@@ -72,7 +57,7 @@ import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
                                  Books Sold
                             </span>
                             <span className="text-3xl font-black text-white group-hover:scale-105 transition-transform origin-left">
-                                {totalBookSold.toLocaleString() || 0}
+                                {stats?.totalBookSold.toLocaleString()}
                             </span>
                             
                         </div>
@@ -91,7 +76,7 @@ import WithAdminAuth from "../../auth/WithAdminAuth.tsx";
                                 Total Customers
                             </span>
                             <span className="text-3xl font-black text-white group-hover:scale-105 transition-transform origin-left">
-                                {totalCustomers.toLocaleString() || 0}
+                                {stats?.totalCustomers.toLocaleString() }
                             </span>
                             
                         </div>
